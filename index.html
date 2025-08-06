@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>學生資料查詢</title>
+</head>
+<body>
+  <h2>請輸入身分證字號末四碼</h2>
+  <input type="text" id="code" placeholder="例如：5678">
+  <button onclick="search()">查詢</button>
+  <pre id="result"></pre>
+
+  <script>
+    async function search() {
+      const code = document.getElementById("code").value;
+      const resultElement = document.getElementById("result");
+
+      if (!code) {
+        resultElement.textContent = "請輸入身分證末四碼";
+        return;
+      }
+
+      try {
+        const res = await fetch(`https://ychengju.zeabur.app/webhook/695de806-4369-4623-83f4-f45dbcc05094?code=${code}`);
+        const data = await res.json();
+        resultElement.textContent = JSON.stringify(data, null, 2);
+      } catch (e) {
+        resultElement.textContent = "查詢失敗，請稍後再試";
+      }
+    }
+  </script>
+</body>
+</html>
