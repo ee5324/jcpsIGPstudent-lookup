@@ -49,7 +49,7 @@
       try {
         // 3. 呼叫 n8n Webhook
         const res = await fetch(
-          `https://ychengju.zeabur.app/webhook/你的WebhookPath?id=${encodeURIComponent(id)}`
+          `https://ychengju.zeabur.app/webhook-test/student?id=${encodeURIComponent(id)}`
         );
         const data = await res.json();
 
