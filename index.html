@@ -14,6 +14,7 @@
       font-size: 16px;
       margin-top: 10px;
       width: 100%;
+      box-sizing: border-box;
     }
     #result {
       margin-top: 20px;
@@ -34,36 +35,43 @@
 
   <script>
     async function search() {
+      // 1. 取值並轉大寫
       const id = document.getElementById('id').value.trim().toUpperCase();
       const resultDiv = document.getElementById('result');
       resultDiv.innerHTML = "🔍 查詢中...";
 
-      // 驗證輸入內容
+      // 2. 驗證
       if (!id || id.length < 5) {
         resultDiv.innerHTML = "⚠️ <span class='error'>請正確輸入完整身分證字號</span>";
         return;
       }
 
       try {
-        const res = await fetch(`https://ychengju.zeabur.app/webhook/695de806-4369-4623-83f4-f45dbcc05094?id=${encodeURIComponent(id)}`);
+        // 3. 呼叫 n8n Webhook
+        const res = await fetch(
+          `https://ychengju.zeabur.app/webhook/你的WebhookPath?id=${encodeURIComponent(id)}`
+        );
         const data = await res.json();
 
+        // 4. 處理回傳
         if (data.message && data.message.includes("查詢成功")) {
-          const d = data["所有資料"];
           let html = `✅ ${data.message}<br><br>`;
 
-          // 自動列出所有欄位資料
-          for (const key in d) {
-            html += `🔹 ${key}：${d[key]}<br>`;
-          }
+          // 🔄 自動列出除了 message 以外的所有欄位
+          Object.keys(data).forEach(key => {
+            if (key === 'message') return;
+            html += `🔹 ${key}：${data[key]}<br>`;
+          });
 
           resultDiv.innerHTML = html;
         } else {
-          resultDiv.innerHTML = `❌ <span class='error'>${data.message || "查詢失敗，請稍後再試。"}</span>`;
+          resultDiv.innerHTML =
+            `❌ <span class='error'>${data.message || "查詢失敗，請稍後再試。"}</span>`;
         }
       } catch (err) {
         console.error(err);
-        resultDiv.innerHTML = "❌ <span class='error'>發生錯誤，請稍後再試。</span>";
+        resultDiv.innerHTML = 
+          "❌ <span class='error'>發生錯誤，請稍後再試。</span>";
       }
     }
   </script>
