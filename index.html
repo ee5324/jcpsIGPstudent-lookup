@@ -25,11 +25,8 @@
 <body>
   <h2>學生資料查詢</h2>
 
-  <label for="name">請輸入學生姓名：</label>
-  <input type="text" id="name" placeholder="例如：楊政儒">
-
-  <label for="id">請輸入身分證字號：</label>
-  <input type="text" id="id" placeholder="例如：S123456789">
+  <label for="id">請輸入身分證字號後四碼：</label>
+  <input type="text" id="id" placeholder="例如：4886">
 
   <button onclick="search()">查詢</button>
 
@@ -37,18 +34,17 @@
 
   <script>
     async function search() {
-      const name = document.getElementById('name').value.trim();
-      const id = document.getElementById('id').value.trim().toUpperCase();
+      const idLast4 = document.getElementById('id').value.trim();
       const resultDiv = document.getElementById('result');
       resultDiv.innerHTML = "🔍 查詢中...";
 
-      if (!name || !id) {
-        resultDiv.innerHTML = "⚠️ <span class='error'>請完整輸入姓名與身分證字號</span>";
+      if (!idLast4 || idLast4.length !== 4) {
+        resultDiv.innerHTML = "⚠️ <span class='error'>請輸入正確的身分證字號後四碼</span>";
         return;
       }
 
       try {
-        const res = await fetch(`https://ychengju.zeabur.app/webhook/695de806-4369-4623-83f4-f45dbcc05094?name=${encodeURIComponent(name)}&id=${encodeURIComponent(id)}`);
+        const res = await fetch(`https://ychengju.zeabur.app/webhook/695de806-4369-4623-83f4-f45dbcc05094?id=${encodeURIComponent(idLast4)}`);
         const data = await res.json();
 
         if (data.message && data.message.includes("查詢成功")) {
@@ -64,7 +60,7 @@
             🏷️ 代號：${d["代號"]}
           `;
         } else {
-          resultDiv.innerHTML = `❌ <span class='error'>${data.message || "查詢失敗，請稍後再試。"}</span>`;
+          resultDiv.innerHTML = `❌ <span class='error'>${data.message || "查無資料，請確認後四碼正確。"}</span>`;
         }
       } catch (err) {
         console.error(err);
