@@ -34,33 +34,31 @@
 
   <script>
     async function search() {
-      const idLast4 = document.getElementById('id').value.trim();
+      const id = document.getElementById('id').value.trim();
       const resultDiv = document.getElementById('result');
       resultDiv.innerHTML = "🔍 查詢中...";
 
-      if (!idLast4 || idLast4.length !== 4) {
-        resultDiv.innerHTML = "⚠️ <span class='error'>請輸入正確的身分證字號後四碼</span>";
+      if (!id || id.length !== 4) {
+        resultDiv.innerHTML = "⚠️ <span class='error'>請正確輸入身分證字號後四碼</span>";
         return;
       }
 
       try {
-        const res = await fetch(`https://ychengju.zeabur.app/webhook/695de806-4369-4623-83f4-f45dbcc05094?id=${encodeURIComponent(idLast4)}`);
+        const res = await fetch(`https://ychengju.zeabur.app/webhook/695de806-4369-4623-83f4-f45dbcc05094?id=${encodeURIComponent(id)}`);
         const data = await res.json();
 
         if (data.message && data.message.includes("查詢成功")) {
           const d = data["所有資料"];
-          resultDiv.innerHTML = `
-            ✅ ${data.message}<br><br>
-            👤 姓名：${data["學生姓名"]}<br>
-            🆔 身分證：${d["id"]}<br>
-            📝 備註A：${d["備註A"]}<br>
-            📝 備註AB：${d["備註AB"]}<br>
-            📝 備註AC：${d["備註AC"]}<br>
-            📝 備註AD：${d["備註AD"]}<br>
-            🏷️ 代號：${d["代號"]}
-          `;
+          let html = `✅ ${data.message}<br><br>`;
+
+          // 🔄 自動列出所有資料欄位
+          for (const key in d) {
+            html += `🔹 ${key}：${d[key]}<br>`;
+          }
+
+          resultDiv.innerHTML = html;
         } else {
-          resultDiv.innerHTML = `❌ <span class='error'>${data.message || "查無資料，請確認後四碼正確。"}</span>`;
+          resultDiv.innerHTML = `❌ <span class='error'>${data.message || "查詢失敗，請稍後再試。"}</span>`;
         }
       } catch (err) {
         console.error(err);
