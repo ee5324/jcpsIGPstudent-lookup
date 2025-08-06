@@ -32,17 +32,15 @@
         const res = await fetch(`https://ychengju.zeabur.app/webhook/695de806-4369-4623-83f4-f45dbcc05094?name=${encodeURIComponent(name)}`);
         const data = await res.json();
 
-        if (data.message.includes("查詢成功")) {
-          resultDiv.innerHTML = `
-            ✅ ${data.message}<br><br>
-            👤 姓名：${data["學生姓名"]}<br>
-            🆔 身分證：${data["所有資料"]["身分證字號"]}<br>
-            📝 備註A：${data["所有資料"]["備註A"]}<br>
-            📝 備註AB：${data["所有資料"]["備註AB"]}<br>
-            📝 備註AC：${data["所有資料"]["備註AC"]}<br>
-            📝 備註AD：${data["所有資料"]["備註AD"]}<br>
-            🏷️ 代號：${data["所有資料"]["代號"]}
-          `;
+        if (data.message.includes("查詢成功") && data.matchedRow) {
+          const student = data.matchedRow;
+          let output = `✅ ${data.message}<br><br>`;
+          
+          for (const [key, value] of Object.entries(student)) {
+            output += `📌 <strong>${key}</strong>：${value}<br>`;
+          }
+
+          resultDiv.innerHTML = output;
         } else {
           resultDiv.textContent = data.message;
         }
