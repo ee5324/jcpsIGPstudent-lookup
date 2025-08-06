@@ -44,7 +44,7 @@
       }
 
       try {
-        const res = await fetch(`https://ychengju.zeabur.app/webhook-test/695de806-4369-4623-83f4-f45dbcc05094?id=${encodeURIComponent(id)}`);
+        const res = await fetch(`https://ychengju.zeabur.app/webhook/695de806-4369-4623-83f4-f45dbcc05094?id=${encodeURIComponent(id)}`);
         const data = await res.json();
 
         if (data.message && data.message.includes("查詢成功")) {
