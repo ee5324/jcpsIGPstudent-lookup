@@ -25,8 +25,8 @@
 <body>
   <h2>學生資料查詢</h2>
 
-  <label for="id">請輸入身分證字號後四碼：</label>
-  <input type="text" id="id" placeholder="例如：4886">
+  <label for="id">請輸入完整身分證字號：</label>
+  <input type="text" id="id" placeholder="例如：S123974876">
 
   <button onclick="search()">查詢</button>
 
@@ -34,12 +34,13 @@
 
   <script>
     async function search() {
-      const id = document.getElementById('id').value.trim();
+      const id = document.getElementById('id').value.trim().toUpperCase();
       const resultDiv = document.getElementById('result');
       resultDiv.innerHTML = "🔍 查詢中...";
 
-      if (!id || id.length !== 4) {
-        resultDiv.innerHTML = "⚠️ <span class='error'>請正確輸入身分證字號後四碼</span>";
+      // 驗證輸入內容
+      if (!id || id.length < 5) {
+        resultDiv.innerHTML = "⚠️ <span class='error'>請正確輸入完整身分證字號</span>";
         return;
       }
 
@@ -51,7 +52,7 @@
           const d = data["所有資料"];
           let html = `✅ ${data.message}<br><br>`;
 
-          // 🔄 自動列出所有資料欄位
+          // 自動列出所有欄位資料
           for (const key in d) {
             html += `🔹 ${key}：${d[key]}<br>`;
           }
