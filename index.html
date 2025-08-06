@@ -1,31 +1,54 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>學生資料查詢</title>
+  <title>學生資料查詢系統</title>
+  <style>
+    body { font-family: sans-serif; max-width: 500px; margin: 50px auto; }
+    input, button { padding: 8px; font-size: 16px; margin-top: 10px; }
+    #result { margin-top: 20px; white-space: pre-line; }
+  </style>
 </head>
 <body>
-  <h2>請輸入身分證字號末四碼</h2>
-  <input type="text" id="code" placeholder="例如：5678">
+  <h2>學生資料查詢</h2>
+  <label for="name">請輸入學生姓名：</label><br>
+  <input type="text" id="name" placeholder="例如：楊政儒"><br>
   <button onclick="search()">查詢</button>
-  <pre id="result"></pre>
+
+  <div id="result"></div>
 
   <script>
     async function search() {
-      const code = document.getElementById("code").value;
-      const resultElement = document.getElementById("result");
+      const name = document.getElementById('name').value.trim();
+      const resultDiv = document.getElementById('result');
+      resultDiv.textContent = "🔍 查詢中...";
 
-      if (!code) {
-        resultElement.textContent = "請輸入身分證末四碼";
+      if (!name) {
+        resultDiv.textContent = "⚠️ 請輸入姓名再查詢";
         return;
       }
 
       try {
-        const res = await fetch(`https://ychengju.zeabur.app/webhook/695de806-4369-4623-83f4-f45dbcc05094?code=${code}`);
+        const res = await fetch(`https://ychengju.zeabur.app/webhook/695de806-4369-4623-83f4-f45dbcc05094?name=${encodeURIComponent(name)}`);
         const data = await res.json();
-        resultElement.textContent = JSON.stringify(data, null, 2);
-      } catch (e) {
-        resultElement.textContent = "查詢失敗，請稍後再試";
+
+        if (data.message.includes("查詢成功")) {
+          resultDiv.innerHTML = `
+            ✅ ${data.message}<br><br>
+            👤 姓名：${data["學生姓名"]}<br>
+            🆔 身分證：${data["所有資料"]["身分證字號"]}<br>
+            📝 備註A：${data["所有資料"]["備註A"]}<br>
+            📝 備註AB：${data["所有資料"]["備註AB"]}<br>
+            📝 備註AC：${data["所有資料"]["備註AC"]}<br>
+            📝 備註AD：${data["所有資料"]["備註AD"]}<br>
+            🏷️ 代號：${data["所有資料"]["代號"]}
+          `;
+        } else {
+          resultDiv.textContent = data.message;
+        }
+      } catch (err) {
+        resultDiv.textContent = "❌ 發生錯誤，請稍後再試。";
+        console.error(err);
       }
     }
   </script>
