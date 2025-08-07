@@ -3,48 +3,74 @@
 <head>
   <meta charset="UTF-8">
   <title>學生資料查詢系統</title>
+  <!-- Tailwind CSS + DaisyUI -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/daisyui@2/dist/full.js"></script>
+  <!-- animate.css -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+  />
   <style>
     body {
       font-family: sans-serif;
       max-width: 500px;
       margin: 50px auto;
-    }
-    input, button {
-      padding: 8px;
-      font-size: 16px;
-      margin-top: 10px;
-      width: 100%;
-      box-sizing: border-box;
+      background: #f9fafb;
     }
     #result {
       margin-top: 20px;
       white-space: pre-line;
     }
-    .error { color: red; }
   </style>
 </head>
-<body>
-  <h2>學生資料查詢</h2>
+<body class="p-4">
+  <h2 class="text-2xl font-semibold text-center mb-6">學生資料查詢</h2>
 
-  <label for="id">請輸入完整身分證字號：</label>
-  <input type="text" id="id" placeholder="例如：S123974876">
+  <div class="form-control mb-4">
+    <label class="label" for="id">
+      <span class="label-text">請輸入完整身分證字號：</span>
+    </label>
+    <input
+      type="text"
+      id="id"
+      placeholder="例如：S123974876"
+      class="input input-bordered w-full"
+    />
+  </div>
 
-  <button onclick="search()">查詢</button>
+  <button
+    onclick="search()"
+    class="btn btn-primary w-full"
+  >
+    查詢
+  </button>
 
-  <div id="result"></div>
+  <div id="result" class="animate__animated"></div>
 
   <script>
     async function search() {
       const id = document.getElementById('id').value.trim().toUpperCase();
       const resultDiv = document.getElementById('result');
-      resultDiv.innerHTML = "🔍 查詢中...";
 
+      // 顯示載入中動畫
+      resultDiv.innerHTML = `
+        <div class="flex justify-center items-center py-8">
+          <span class="loading loading-spinner loading-lg text-primary"></span>
+        </div>
+      `;
+      resultDiv.classList.remove('animate__fadeInUp');
+
+      // 檢查輸入
       if (!id || id.length < 5) {
-        resultDiv.innerHTML = "⚠️ <span class='error'>請正確輸入完整身分證字號</span>";
+        resultDiv.innerHTML = `
+          <span class="text-error">⚠️ 請正確輸入完整身分證字號</span>
+        `;
         return;
       }
 
       try {
+        // 已寫好 Path：student
         const res = await fetch(
           `https://ychengju.zeabur.app/webhook/student?id=${encodeURIComponent(id)}`,
           { method: 'GET' }
@@ -52,22 +78,30 @@
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
 
+        let html = '';
         if (data.message && data.message.includes("查詢成功")) {
-          let html = `✅ ${data.message}<br><br>`;
+          html += `<div class="text-success mb-4">✅ ${data.message}</div>`;
           Object.keys(data).forEach(key => {
             if (key === 'message') return;
-            html += `🔹 ${key}：${data[key]}<br>`;
+            html += `
+              <div class="mb-2">
+                <span class="font-medium">${key}：</span>${data[key]}
+              </div>
+            `;
           });
-          resultDiv.innerHTML = html;
         } else {
-          resultDiv.innerHTML =
-            `❌ <span class='error'>${data.message || "查詢失敗，請稍後再試。"}</span>`;
+          html = `<span class="text-error">❌ ${data.message || "查詢失敗，請稍後再試。"}</span>`;
         }
+        resultDiv.innerHTML = html;
       } catch (err) {
-        console.error("Fetch or parse error:", err);
-        resultDiv.innerHTML =
-          "❌ <span class='error'>發生錯誤，請稍後再試。</span>";
+        console.error("Fetch Error:", err);
+        resultDiv.innerHTML = `
+          <span class="text-error">❌ 發生錯誤，請稍後再試。</span>
+        `;
       }
+
+      // 結果淡入
+      resultDiv.classList.add('animate__fadeInUp');
     }
   </script>
 </body>
